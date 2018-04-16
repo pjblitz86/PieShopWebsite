@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,7 @@ namespace PieShopWebsite
 		{
 			services.AddDbContext<AppDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 			services.AddTransient<IPieRepository, PieRepository>(); // when instance is asked new rep will be returned
+			services.AddTransient<IFeedbackRepository, FeedbackRepository>();
 			services.AddMvc();
 		}
 
@@ -33,7 +35,14 @@ namespace PieShopWebsite
 			app.UseDeveloperExceptionPage();
 			app.UseStatusCodePages();
 			app.UseStaticFiles(); // wwwroot folder
-			app.UseMvcWithDefaultRoute();
+			app.UseMvc(routes =>
+				{
+					routes.MapRoute(
+						name: "default",
+						template: "{controller=Home}/{action=Index}/{id?}"
+					);
+				}
+			);
 		}
 	}
 }
